@@ -1,45 +1,48 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpException, HttpStatus, Param, Post, Put} from '@nestjs/common';
 import { response } from 'express';
 import { CoursesService } from './courses.service';
+import { CreateCourseDTO } from './dto/create-course-dto';
+import { UpdateCourseDTO } from './dto/update-course-dto';
 
 @Controller('courses')
 export class CoursesController {
     constructor(private readonly coursesService: CoursesService){}
     
     @Get('list')
-    findAll(@Res() response){
-        return response.status(200).json({
-            message: "Lista de cursos"
-        });
+    findAll(){
+        return this.coursesService.findAll();
     }
 
-    @Get(":id/:name")
-    findOne(@Res() response, @Param("id") id: string, @Param("name") name: string){
-        return response.status(200).send(`Curso numero ${id} e o nome do curso ${name}`);
+    @Get(":id")
+    findOne(@Param("id") id: number){
+        const course = this.coursesService.findOne(+id);
+        if(!course){
+            throw new HttpException(`Courses ID ${id} not found`, HttpStatus.NOT_FOUND);
+        }
+        return course;
     }
 
     @Post()
-    create(@Body() body) { 
-        return body;
+    create(@Body() createCourseDTO: CreateCourseDTO) { 
+        return this.coursesService.create(createCourseDTO);
     }
 
-    //exemplo usando HttpCode
-    @HttpCode(204)
-    @Post("exemplo")
-    createEx(@Body() body) { 
-        return body;
+    // //exemplo usando HttpCode
+    // @HttpCode(204)
+    // @Post("exemplo")
+    // createEx(@Body() body) { 
+    //     return body;
+    // }
+
+    @Put(":id")
+    update(@Param("id") id: number, @Body() updateCourseDTO: UpdateCourseDTO) {
+        return this.coursesService.update(+id,updateCourseDTO);
     }
 
-    @Patch(":id")
-    update(@Param("id") id: string, @Body() body) {
-        console.log(body);
-        return `O id atualizado -> ${id}`;
-    }
-
-    @HttpCode(204)
+    @HttpCode(HttpStatus.NO_CONTENT)
     @Delete(":id")
-    remove(@Param("id") id: string) {
-        return `O id removido -> ${id}`;
+    remove(@Param("id") id: number) {
+        return this.coursesService.remove(+id);
     }
 
 }
