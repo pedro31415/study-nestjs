@@ -15,7 +15,7 @@ export class CoursesController {
 
     @Get(":id")
     findOne(@Param("id") id: number){
-        const course = this.coursesService.findOne(+id);
+        const course = this.coursesService.findOne(id);
         if(!course){
             throw new HttpException(`Courses ID ${id} not found`, HttpStatus.NOT_FOUND);
         }
@@ -27,22 +27,15 @@ export class CoursesController {
         return this.coursesService.create(createCourseDTO);
     }
 
-    // //exemplo usando HttpCode
-    // @HttpCode(204)
-    // @Post("exemplo")
-    // createEx(@Body() body) { 
-    //     return body;
-    // }
-
     @Put(":id")
     update(@Param("id") id: number, @Body() updateCourseDTO: UpdateCourseDTO) {
-        return this.coursesService.update(+id,updateCourseDTO);
+        return this.coursesService.update(id,updateCourseDTO);
     }
 
     @HttpCode(HttpStatus.NO_CONTENT)
     @Delete(":id")
     remove(@Param("id") id: number) {
-        return this.coursesService.remove(+id);
+        return this.coursesService.remove(id);
     }
 
 }
